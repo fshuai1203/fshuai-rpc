@@ -11,6 +11,8 @@
         <module>example-provider</module>
         <module>example-common</module>
         <module>fshuai-rpc-easy</module>
+        <module>fshuai-rpc-core</module>
+        <module>fshuai-rpc-core</module>
     </modules>
 
     <dependencyManagement>
