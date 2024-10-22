@@ -1,5 +1,8 @@
 package com.fshuai.proxy;
 
+import com.fshuai.RpcApplication;
+import com.fshuai.config.RpcConfig;
+
 import java.lang.reflect.Proxy;
 
 public class ServiceProxyFactory {
@@ -17,10 +20,24 @@ public class ServiceProxyFactory {
     public static <T> T getProxy(Class<T> serviceClass) {
         // 创建代理对象，使用serviceClass的类加载器，以serviceClass为接口，并使用ServiceProxy作为调用处理器
         // ServiceProxy负责处理代理对象上方法的调用，将调用转发给真实对象或执行其他逻辑
+
+        // 检查是否开启mock
+        if (RpcApplication.getRpcConfig().isMock()) {
+            return getMockProxy(serviceClass);
+        }
+
         return (T) Proxy.newProxyInstance(
                 serviceClass.getClassLoader(),
                 new Class[]{serviceClass},
                 new ServiceProxy()
+        );
+    }
+
+    private static <T> T getMockProxy(Class<T> serviceClass) {
+        return (T) Proxy.newProxyInstance(
+                serviceClass.getClassLoader(),
+                new Class[]{serviceClass},
+                new MockServiceProxy()
         );
     }
 

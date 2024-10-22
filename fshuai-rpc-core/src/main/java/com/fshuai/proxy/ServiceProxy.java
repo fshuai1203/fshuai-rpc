@@ -2,6 +2,8 @@ package com.fshuai.proxy;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import com.fshuai.RpcApplication;
+import com.fshuai.config.RpcConfig;
 import com.fshuai.model.RpcRequest;
 import com.fshuai.model.RpcResponse;
 import com.fshuai.serializer.JdkSerializer;
@@ -31,8 +33,11 @@ public class ServiceProxy implements InvocationHandler {
         try {
             // 序列化
             byte[] bodyBytes = serializer.serializer(rpcRequest);
+            // 根据RPC配置构建服务地址
+            RpcConfig rpcConfig = RpcApplication.getRpcConfig();
+            String postUrl = "http://" + rpcConfig.getServerHost() + ":" + rpcConfig.getServerPort();
             // 发送请求
-            try (HttpResponse httpResponse = HttpRequest.post("http://localhost:1203").body(bodyBytes).execute()) {
+            try (HttpResponse httpResponse = HttpRequest.post(postUrl).body(bodyBytes).execute()) {
                 byte[] result = httpResponse.bodyBytes();
                 // 反序列化
                 RpcResponse rpcResponse = serializer.deserializer(result, RpcResponse.class);

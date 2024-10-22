@@ -6,4 +6,8 @@ public interface UserService {
 
     User getUser(User user);
 
+    default short gerNumber() {
+        return 1;
+    }
+
 }
