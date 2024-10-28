@@ -1,5 +1,7 @@
 package com.fshuai.config;
 
+import com.fshuai.serializer.Serializer;
+import com.fshuai.serializer.SerializerKeys;
 import lombok.Data;
 
 @Data
@@ -29,5 +31,10 @@ public class RpcConfig {
      * mock服务
      */
     private boolean mock = false;
+
+    /**
+     * 定义序列化器
+     */
+    private String serializer = "jdk";
 
 }

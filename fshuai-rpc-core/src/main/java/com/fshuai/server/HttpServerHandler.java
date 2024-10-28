@@ -1,10 +1,12 @@
 package com.fshuai.server;
 
+import com.fshuai.RpcApplication;
 import com.fshuai.model.RpcRequest;
 import com.fshuai.model.RpcResponse;
 import com.fshuai.register.LocalRegister;
-import com.fshuai.serializer.JdkSerializer;
 import com.fshuai.serializer.Serializer;
+import com.fshuai.serializer.SerializerFactory;
+import com.fshuai.serializer.SerializerFactory1;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
@@ -18,7 +20,8 @@ public class HttpServerHandler implements Handler<HttpServerRequest> {
     @Override
     public void handle(HttpServerRequest request) {
         // 指定序列化器
-        final Serializer serializer = new JdkSerializer();
+        Serializer serializer = SerializerFactory.getInstance(RpcApplication.getRpcConfig().getSerializer());
+
 
         // 记录日志
         System.out.println("Received request:" + request.method() + " " + request.uri());
@@ -28,7 +31,7 @@ public class HttpServerHandler implements Handler<HttpServerRequest> {
             byte[] bodyBytes = body.getBytes();
             RpcRequest rpcRequest = null;
             try {
-                rpcRequest = serializer.deserializer(bodyBytes, RpcRequest.class);
+                rpcRequest = serializer.deserialize(bodyBytes, RpcRequest.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -47,7 +50,7 @@ public class HttpServerHandler implements Handler<HttpServerRequest> {
             try {
                 // 通过注册器获取服务实现类
                 Class<?> implClass = LocalRegister.getRegister(rpcRequest.getServiceName());
-                Method method = implClass.getMethod(rpcRequest.getMethodName(),rpcRequest.getParameterTypes());
+                Method method = implClass.getMethod(rpcRequest.getMethodName(), rpcRequest.getParameterTypes());
                 Object result = method.invoke(implClass.newInstance(), rpcRequest.getArgs());
 
                 // 封装返回结果
@@ -70,16 +73,16 @@ public class HttpServerHandler implements Handler<HttpServerRequest> {
      * 处理RPC响应的函数
      * 将RPC响应对象序列化为字节流，并通过HTTP响应返回
      *
-     * @param request        HttpServerRequest对象，表示接收到的HTTP请求
-     * @param rpcResponse    RpcResponse对象，表示RPC调用的结果
-     * @param serializer     Serializer对象，用于对象的序列化
+     * @param request     HttpServerRequest对象，表示接收到的HTTP请求
+     * @param rpcResponse RpcResponse对象，表示RPC调用的结果
+     * @param serializer  Serializer对象，用于对象的序列化
      */
     private void doResponse(HttpServerRequest request, RpcResponse rpcResponse, Serializer serializer) {
         // 获取HTTP响应对象，并设置响应内容类型为application/json
         HttpServerResponse httpServerResponse = request.response().putHeader("content-type", "application/json");
         try {
             // 使用serializer将RPC响应对象序列化为字节流
-            byte[] serializered = serializer.serializer(rpcResponse);
+            byte[] serializered = serializer.serialize(rpcResponse);
             // 将序列化后的字节流写入HTTP响应中，结束响应
             httpServerResponse.end(Buffer.buffer(serializered));
         } catch (IOException e) {

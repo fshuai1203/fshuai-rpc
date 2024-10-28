@@ -11,7 +11,7 @@ public class JdkSerializer implements Serializer {
      * @throws IOException 如果序列化过程中发生错误
      */
     @Override
-    public <T> byte[] serializer(T object) throws IOException {
+    public <T> byte[] serialize(T object) throws IOException {
 
         // 创建字节数组输出流，用于存储序列化后的字节数组
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -39,7 +39,7 @@ public class JdkSerializer implements Serializer {
      * @throws IOException 如果在反序列化过程中发生输入输出异常
      */
     @Override
-    public <T> T deserializer(byte[] bytes, Class<T> clazz) throws IOException {
+    public <T> T deserialize(byte[] bytes, Class<T> clazz) throws IOException {
         // 将字节数组转换为输入流
         ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
         // 使用对象输入流读取输入流中的对象

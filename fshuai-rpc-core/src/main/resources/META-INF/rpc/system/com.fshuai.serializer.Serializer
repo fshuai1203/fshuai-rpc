@@ -1,0 +1,2 @@
+jdk=com.fshuai.serializer.JdkSerializer
+hessian=com.fshuai.serializer.HessianSerializer

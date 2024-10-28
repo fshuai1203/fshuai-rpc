@@ -30,7 +30,7 @@ public class UserServiceProxy implements UserService {
                 .build();
 
         try {
-            byte[] bodyBytes = serializer.serializer(rpcRequest);
+            byte[] bodyBytes = serializer.serialize(rpcRequest);
             byte[] result;
             // 发送请求并获得序列化的响应
             try (HttpResponse httpResponse = HttpRequest.post("http://localhost:1203")
@@ -40,7 +40,7 @@ public class UserServiceProxy implements UserService {
             }
 
             // 反序列化响应
-            RpcResponse rpcResponse = serializer.deserializer(result, RpcResponse.class);
+            RpcResponse rpcResponse = serializer.deserialize(result, RpcResponse.class);
             return (User) rpcResponse.getData();
 
         } catch (IOException e) {

@@ -1,0 +1,2 @@
+json=com.fshuai.serializer.JsonSerializer
+kryo=com.fshuai.serializer.KryoSerializer
