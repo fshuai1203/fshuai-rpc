@@ -1,4 +1,4 @@
-package com.fshuai.register;
+package com.fshuai.registry;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

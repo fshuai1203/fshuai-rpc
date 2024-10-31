@@ -2,7 +2,7 @@ package com.fshuai.server;
 
 import com.fshuai.model.RpcRequest;
 import com.fshuai.model.RpcResponse;
-import com.fshuai.register.LocalRegister;
+import com.fshuai.registry.LocalRegister;
 import com.fshuai.serializer.JdkSerializer;
 import com.fshuai.serializer.Serializer;
 import io.vertx.core.Handler;

@@ -3,10 +3,9 @@ package com.fshuai.server;
 import com.fshuai.RpcApplication;
 import com.fshuai.model.RpcRequest;
 import com.fshuai.model.RpcResponse;
-import com.fshuai.register.LocalRegister;
+import com.fshuai.registry.LocalRegistry;
 import com.fshuai.serializer.Serializer;
 import com.fshuai.serializer.SerializerFactory;
-import com.fshuai.serializer.SerializerFactory1;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
@@ -49,7 +48,7 @@ public class HttpServerHandler implements Handler<HttpServerRequest> {
             // 请求非空，通过反射调用服务实现类
             try {
                 // 通过注册器获取服务实现类
-                Class<?> implClass = LocalRegister.getRegister(rpcRequest.getServiceName());
+                Class<?> implClass = LocalRegistry.getRegister(rpcRequest.getServiceName());
                 Method method = implClass.getMethod(rpcRequest.getMethodName(), rpcRequest.getParameterTypes());
                 Object result = method.invoke(implClass.newInstance(), rpcRequest.getArgs());
 

@@ -1,9 +1,9 @@
-package com.fshuai.register;
+package com.fshuai.registry;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LocalRegister {
+public class LocalRegistry {
 
     /**
      * 注册信息存储
