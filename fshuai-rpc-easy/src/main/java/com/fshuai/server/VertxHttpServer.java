@@ -21,7 +21,7 @@ public class VertxHttpServer implements HttpServer {
             if (result.succeeded()) {
                 System.out.println("正在监听端口:" + port);
             } else {
-                System.out.println("端口监听失败☹️" + result.cause());
+                System.out.println("端口监听失败" + result.cause());
             }
         });
     }

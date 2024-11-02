@@ -1,1 +1,2 @@
 etcd=com.fshuai.registry.EtcdRegistry
+zookeeper=com.fshuai.registry.ZooKeeperRegistry
