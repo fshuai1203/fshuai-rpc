@@ -27,7 +27,7 @@ public class LocalRegistry {
      * @param serviceName 服务名称
      * @return 服务实现类
      */
-    public static Class<?> getRegister(String serviceName) {
+    public static Class<?> getService(String serviceName) {
         return map.get(serviceName);
     }
 

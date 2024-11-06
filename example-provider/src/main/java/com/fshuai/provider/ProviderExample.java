@@ -9,6 +9,7 @@ import com.fshuai.registry.Registry;
 import com.fshuai.registry.RegistryFactory;
 import com.fshuai.server.HttpServer;
 import com.fshuai.server.VertxHttpServer;
+import com.fshuai.server.tcp.VertxTcpServer;
 import com.fshuai.service.UserService;
 
 public class ProviderExample {
@@ -39,8 +40,8 @@ public class ProviderExample {
             throw new RuntimeException();
         }
 
-        // 启动web服务
-        HttpServer httpServer = new VertxHttpServer();
+        // 启动tcp服务
+        HttpServer httpServer = new VertxTcpServer();
 
         httpServer.doStart(rpcConfig.getServerPort());
 

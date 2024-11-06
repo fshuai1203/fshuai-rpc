@@ -47,7 +47,7 @@ public class HttpServerHandler implements Handler<HttpServerRequest> {
             // 请求非空，通过反射调用服务实现类
             try {
                 // 通过注册器获取服务实现类
-                Class<?> implClass = LocalRegistry.getRegister(rpcRequest.getServiceName());
+                Class<?> implClass = LocalRegistry.getService(rpcRequest.getServiceName());
                 Method method = implClass.getMethod(rpcRequest.getMethodName(), rpcRequest.getParameterTypes());
                 Object result = method.invoke(implClass.newInstance(), rpcRequest.getArgs());
 
