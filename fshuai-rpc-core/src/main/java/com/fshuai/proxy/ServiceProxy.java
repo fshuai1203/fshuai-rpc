@@ -13,6 +13,7 @@ import com.fshuai.registry.Registry;
 import com.fshuai.registry.RegistryFactory;
 import com.fshuai.serializer.Serializer;
 import com.fshuai.serializer.SerializerFactory;
+import com.fshuai.server.tcp.VertxTcpClient;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -56,15 +57,11 @@ public class ServiceProxy implements InvocationHandler {
             }
 
             //:todo 暂时先取第一个
-            ServiceMetaInfo selectServiceMetaInfo = serviceMetaInfoList.get(0);
+            ServiceMetaInfo selectedServiceMetaInfo = serviceMetaInfoList.get(0);
 
-            // 发送请求
-            try (HttpResponse httpResponse = HttpRequest.post(selectServiceMetaInfo.getServiceAddress()).body(bodyBytes).execute()) {
-                byte[] result = httpResponse.bodyBytes();
-                // 反序列化
-                RpcResponse rpcResponse = serializer.deserialize(result, RpcResponse.class);
-                return rpcResponse.getData();
-            }
+            // 发送TCP请求
+            RpcResponse rpcResponse = VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo);
+            return rpcResponse.getData();
         } catch (Exception e) {
             e.printStackTrace();
         }

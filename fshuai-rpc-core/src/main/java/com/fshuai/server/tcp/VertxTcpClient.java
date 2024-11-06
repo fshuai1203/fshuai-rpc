@@ -1,45 +1,87 @@
 package com.fshuai.server.tcp;
 
+
+import cn.hutool.core.util.IdUtil;
+import com.fshuai.RpcApplication;
+import com.fshuai.model.RpcRequest;
+import com.fshuai.model.RpcResponse;
+import com.fshuai.model.ServiceMetaInfo;
+import com.fshuai.protocol.*;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.net.NetClient;
 import io.vertx.core.net.NetSocket;
 
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 /**
- * tcp客户端
+ * Vertx Tcp请求客户端
  */
 public class VertxTcpClient {
 
-    public void start() {
 
+    public static RpcResponse doRequest(RpcRequest rpcRequest, ServiceMetaInfo serviceMetaInfo) throws ExecutionException, InterruptedException {
+
+        // 发送TCP请求
         Vertx vertx = Vertx.vertx();
+        NetClient netClient = vertx.createNetClient();
 
-        vertx.createNetClient().connect(1203, "localhost", result -> {
-            if (result.succeeded()) {
-                System.out.println("connected TCP server");
-                NetSocket socket = result.result();
+        CompletableFuture<RpcResponse> responseFuture = new CompletableFuture<>();
 
-                for (int i = 0; i < 1; i++) {
+        netClient.connect(serviceMetaInfo.getServicePort(), serviceMetaInfo.getServiceHost(),
+                result -> {
+                    if (!result.succeeded()) {
+                        // 建立连接失败
+                        System.err.println("Failed to connect to TCP server");
+                        return;
+                    }
+
+                    NetSocket socket = result.result();
                     // 发送数据
-                    Buffer buffer = Buffer.buffer();
-                    String str = "Hello, server!Hello, server!Hello, server!Hello, server!";
-                    buffer.appendInt(0);
-                    buffer.appendInt(str.getBytes().length);
-                    buffer.appendBytes(str.getBytes());
-                    socket.write(buffer);
-                }
+                    // 构造消息
+                    ProtocolMessage<RpcRequest> protocolMessage = new ProtocolMessage<>();
+                    ProtocolMessage.Header header = new ProtocolMessage.Header();
+                    header.setMagic(ProtocolConstant.PROTOCOL_MAGIC);
+                    header.setVersion(ProtocolConstant.PROTOCOL_VERSION);
+                    header.setSerializer((byte) ProtocolMessageSerializerEnum
+                            .getEnumByValue(RpcApplication.getRpcConfig().getSerializer()).getKey());
+                    header.setType((byte) ProtocolMessageTypeEnum.REQUEST.getKey());
+                    header.setRequestId(IdUtil.getSnowflakeNextId());
+                    protocolMessage.setHeader(header);
+                    protocolMessage.setBody(rpcRequest);
 
-                socket.handler(buffer -> {
-                    System.out.println("Received response from server " + buffer.toString());
+                    // 编码请求
+                    try {
+                        Buffer encodeBuffer = ProtocolMessageEncoder.encode(protocolMessage);
+                        socket.write(encodeBuffer);
+                    } catch (IOException e) {
+                        throw new RuntimeException("协议消息编码错误");
+                    }
+
+                    // 接收响应
+                    // 使用TCPBufferHandlerWrapper包装，避免Vertx的Buffer对象的粘包和少包
+                    TcpBufferHandlerWrapper bufferHandlerWrapper = new TcpBufferHandlerWrapper(buffer -> {
+                        // 处理响应
+                        try {
+                            ProtocolMessage<RpcResponse> rpcResponseProtocolMessage
+                                    = (ProtocolMessage<RpcResponse>) ProtocolMessageDecoder.decode(buffer);
+                            // 用于将异步转为同步请求
+                            responseFuture.complete(rpcResponseProtocolMessage.getBody());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                    socket.handler(bufferHandlerWrapper);
                 });
 
-            } else {
-                System.err.println("Failed to connect to TCP server");
-            }
-        });
-    }
+        RpcResponse rpcResponse = responseFuture.get();
 
-    public static void main(String[] args) {
-        new VertxTcpClient().start();
+        // 关闭连接
+        netClient.close();
+        return rpcResponse;
+
     }
 
 }

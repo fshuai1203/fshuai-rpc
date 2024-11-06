@@ -51,7 +51,7 @@ public class TcpServerHandler implements Handler<NetSocket> {
             try {
                 // 获取要调用的服务类，利用反射进行调用
                 Class<?> implClass = LocalRegistry.getService(rpcRequest.getServiceName());
-                Method method = implClass.getMethod(rpcRequest.getMethodName());
+                Method method = implClass.getMethod(rpcRequest.getMethodName(),rpcRequest.getParameterTypes());
                 Object result = method.invoke(implClass.newInstance(), rpcRequest.getArgs());
 
                 // 设置响应数据和状态
