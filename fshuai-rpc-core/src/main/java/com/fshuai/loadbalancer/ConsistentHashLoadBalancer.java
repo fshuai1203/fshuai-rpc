@@ -34,7 +34,7 @@ public class ConsistentHashLoadBalancer implements LoadBalancer {
         // 获取调用请求的Hash值
         int hash = getHash(requestParams);
 
-        // 选择最近且大雨等于调用请求Hash值的虚拟节点
+        // 选择最近且大于等于调用请求Hash值的虚拟节点
         Map.Entry<Integer, ServiceMetaInfo> entry = virtualNodes.ceilingEntry(hash);
 
         if (entry == null) {
@@ -50,7 +50,14 @@ public class ConsistentHashLoadBalancer implements LoadBalancer {
      * Hash算法
      */
     private int getHash(Object key) {
-        return key.hashCode();
+        int hash = key.hashCode();
+        // 使用FNV哈希算法进一步优化哈希值分布
+        hash += (hash << 13);
+        hash ^= (hash >> 7);
+        hash += (hash << 3);
+        hash ^= (hash >> 17);
+        hash += (hash << 5);
+        return Math.abs(hash);
     }
 
 }
