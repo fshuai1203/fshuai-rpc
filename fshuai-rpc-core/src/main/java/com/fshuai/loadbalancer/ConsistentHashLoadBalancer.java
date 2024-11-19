@@ -9,7 +9,7 @@ import java.util.TreeMap;
 /**
  * 一致性哈希负载均衡器
  */
-public class ConsistentHashLoadBalancer extends LoadBalancer {
+public class ConsistentHashLoadBalancer implements LoadBalancer {
 
     // 一致性Hash换，存放虚拟节点
     private final TreeMap<Integer, ServiceMetaInfo> virtualNodes = new TreeMap<>();
@@ -18,7 +18,10 @@ public class ConsistentHashLoadBalancer extends LoadBalancer {
     private static final int VIRTUAL_NODE_SIZE = 100;
 
     @Override
-    public ServiceMetaInfo selectFromList(Map<String, Object> requestParams, List<ServiceMetaInfo> serviceMetaInfoList, int infoListSize) {
+    public ServiceMetaInfo select(Map<String, Object> requestParams, List<ServiceMetaInfo> serviceMetaInfoList) {
+        if (serviceMetaInfoList.isEmpty()) {
+            return null;
+        }
 
         // 构建虚拟节点环
         for (ServiceMetaInfo serviceMetaInfo : serviceMetaInfoList) {
@@ -42,10 +45,12 @@ public class ConsistentHashLoadBalancer extends LoadBalancer {
         return entry.getValue();
     }
 
+
     /**
      * Hash算法
      */
     private int getHash(Object key) {
         return key.hashCode();
     }
+
 }
