@@ -35,6 +35,8 @@ public class VertxTcpClient {
                     if (!result.succeeded()) {
                         // 建立连接失败
                         System.err.println("Failed to connect to TCP server");
+                        // 抛出异常，让重试策略捕捉到异常
+                        responseFuture.completeExceptionally(new RuntimeException("Failed to connect to TCP server"));
                         return;
                     }
 

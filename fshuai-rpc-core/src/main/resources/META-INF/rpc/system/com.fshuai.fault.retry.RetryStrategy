@@ -1,0 +1,3 @@
+no=com.fshuai.fault.retry.NoRetryStrategy
+fixedInterval=com.fshuai.fault.retry.FixedIntervalRetryStrategy
+exponential=com.fshuai.fault.retry.ExponentialRetryStrategy

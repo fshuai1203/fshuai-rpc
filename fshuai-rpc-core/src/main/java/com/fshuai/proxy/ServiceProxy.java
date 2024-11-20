@@ -6,6 +6,9 @@ import cn.hutool.http.HttpResponse;
 import com.fshuai.RpcApplication;
 import com.fshuai.config.RpcConfig;
 import com.fshuai.constant.RpcConstant;
+import com.fshuai.fault.retry.RetryStrategy;
+import com.fshuai.fault.retry.RetryStrategyFactory;
+import com.fshuai.fault.retry.RetryStrategyKeys;
 import com.fshuai.loadbalancer.LoadBalancer;
 import com.fshuai.loadbalancer.LoadBalancerFactory;
 import com.fshuai.model.RpcRequest;
@@ -69,8 +72,14 @@ public class ServiceProxy implements InvocationHandler {
             ServiceMetaInfo selectedServiceMetaInfo = loadBalancer.select(requestParams, serviceMetaInfoList);
 
 
+            //使用重试机制
+            RetryStrategy retryStrategy = RetryStrategyFactory.getInstance(rpcConfig.getRetryStrategy());
             // 发送TCP请求
-            RpcResponse rpcResponse = VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo);
+            RpcResponse rpcResponse =
+                    retryStrategy.doRetry(() ->
+                            VertxTcpClient.doRequest(rpcRequest, selectedServiceMetaInfo)
+                    );
+
             return rpcResponse.getData();
         } catch (Exception e) {
             e.printStackTrace();
