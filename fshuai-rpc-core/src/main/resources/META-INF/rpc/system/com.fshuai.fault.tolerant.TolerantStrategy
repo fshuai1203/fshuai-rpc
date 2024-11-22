@@ -1,0 +1,4 @@
+failBack=com.fshuai.fault.tolerant.FailBackTolerantStrategy
+failSafe=com.fshuai.fault.tolerant.FailSafeTolerantStrategy
+failOver=com.fshuai.fault.tolerant.FailOverTolerantStrategy
+failFast=com.fshuai.fault.tolerant.FailFastTolerantStrategy

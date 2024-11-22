@@ -14,7 +14,6 @@ public class EasyConsumerExample {
         System.out.println(rpc);
 
         UserService userService = ServiceProxyFactory.getProxy(UserService.class);
-
         User user = new User();
         user.setName("fshuai");
         User newUser = userService.getUser(user);
