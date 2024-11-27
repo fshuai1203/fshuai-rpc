@@ -13,6 +13,8 @@
         <module>fshuai-rpc-easy</module>
         <module>fshuai-rpc-core</module>
         <module>fshuai-rpc-core</module>
+        <module>example-springboot-consumer</module>
+        <module>example-springboot-provider</module>
     </modules>
 
     <dependencyManagement>
